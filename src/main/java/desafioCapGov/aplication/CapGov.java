@@ -13,7 +13,6 @@ public class CapGov {
 		ResourceConfig rc = new ResourceConfig().packages("desafioCapGov.repository");
 		@SuppressWarnings("unused")
 		HttpServer server = GrizzlyHttpServerFactory.createHttpServer(URI.create(BASE_URI), rc);
-
 		System.out.println("servidor no ar teste - " + BASE_URI);
 
 	}

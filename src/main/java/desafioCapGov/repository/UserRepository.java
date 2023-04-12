@@ -22,6 +22,7 @@ public class UserRepository {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getPessoas() {
 		Session session = Database.getSession();
+		@SuppressWarnings("unchecked")
 		List<User> users = session.createQuery("from User").list();
 		session.close();
 		users.forEach(user -> user.setPassword(null));
