@@ -12,6 +12,7 @@ import javax.ws.rs.core.Response;
 
 import org.hibernate.Session;
 
+import desafioCapGov.annotations.Logged;
 import desafioCapGov.database.Database;
 import desafioCapGov.entities.User;
 
@@ -20,6 +21,7 @@ public class UserRepository {
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
+	@Logged
 	public Response getPessoas() {
 		Session session = Database.getSession();
 		@SuppressWarnings("unchecked")
