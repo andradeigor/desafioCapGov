@@ -1,11 +1,13 @@
 package desafioCapGov.repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import javax.persistence.Query;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -68,5 +70,30 @@ public class PostRepository {
 		session.getTransaction().commit();
 		session.close();
 		return Response.status(201).entity(post).build();
+	}
+
+	@PUT
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("/{id}")
+	public Response updatePost(Post p, @Context HttpHeaders headers, @PathParam("id") String postID) {
+		String userID = headers.getHeaderString("userID");
+		System.out.println(userID);
+		System.out.println(p);
+		System.out.println(postID);
+		Session session = Database.getSession();
+		session.beginTransaction();
+		Query query = session.createQuery("update Post set title = :title, " + "content = :content, "
+				+ "updatedAt = :updatedAt " + "where userID = :userID " + "AND postID = :postID");
+
+		query.setParameter("title", p.getTitle());
+		query.setParameter("content", p.getContent());
+		query.setParameter("updatedAt", LocalDateTime.now());
+		query.setParameter("userID", userID);
+		query.setParameter("postID", postID);
+		query.executeUpdate();
+		session.getTransaction().commit();
+		return Response.ok().build();
+
 	}
 }
