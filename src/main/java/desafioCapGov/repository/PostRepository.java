@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.persistence.Query;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -21,6 +22,7 @@ import org.hibernate.Session;
 import desafioCapGov.annotations.Logged;
 import desafioCapGov.database.Database;
 import desafioCapGov.entities.Post;
+import desafioCapGov.entities.ResponseError;
 
 @Path("/posts")
 @Logged
@@ -36,6 +38,7 @@ public class PostRepository {
 		query.setParameter("userID", userID);
 		List<Post> posts = query.getResultList();
 		session.getTransaction().commit();
+		session.close();
 		return Response.ok().entity(posts).build();
 	}
 
@@ -52,6 +55,7 @@ public class PostRepository {
 		query.setMaxResults(1);
 		List<Post> posts = query.getResultList();
 		session.getTransaction().commit();
+		session.close();
 		if (posts.size() < 1) {
 			return Response.status(404).build();
 		}
@@ -93,7 +97,26 @@ public class PostRepository {
 		query.setParameter("postID", postID);
 		query.executeUpdate();
 		session.getTransaction().commit();
+		session.close();
 		return Response.ok().build();
+
+	}
+
+	@DELETE
+	@Path("/{id}")
+	public Response deletePost(@PathParam("id") String postID, @Context HttpHeaders headers) {
+		String userID = headers.getHeaderString("userID");
+		Session session = Database.getSession();
+		session.beginTransaction();
+		Post p = session.get(Post.class, postID);
+		if (p.getUserId().equals(userID)) {
+			session.delete(p);
+			session.getTransaction().commit();
+			session.close();
+			return Response.ok().build();
+		} else {
+			return Response.status(403).entity(new ResponseError("You can only delete your posts!!", 403)).build();
+		}
 
 	}
 }
