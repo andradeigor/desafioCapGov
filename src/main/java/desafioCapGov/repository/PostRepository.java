@@ -16,10 +16,7 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.hibernate.Session;
-
 import desafioCapGov.annotations.Logged;
-import desafioCapGov.database.Database;
 import desafioCapGov.entities.Post;
 import desafioCapGov.entities.ResponseError;
 import desafioCapGov.resource.PostResource;
@@ -81,13 +78,9 @@ public class PostRepository {
 	@Path("/{id}")
 	public Response deletePost(@PathParam("id") String postID, @Context HttpHeaders headers) {
 		String userID = headers.getHeaderString("userID");
-		Session session = Database.getSession();
-		session.beginTransaction();
-		Post p = session.get(Post.class, postID);
+		Post p = postResource.getPostByID(postID);
 		if (p.getUserId().equals(userID)) {
-			session.delete(p);
-			session.getTransaction().commit();
-			session.close();
+			postResource.deletePost(p);
 			return Response.ok().build();
 		} else {
 			return Response.status(403).entity(new ResponseError("You can only delete your posts!!", 403)).build();

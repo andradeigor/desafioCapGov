@@ -50,4 +50,12 @@ public class PostResource {
 		session.close();
 	}
 
+	public void deletePost(Post p) {
+		Session session = Database.getSession();
+		session.beginTransaction();
+		session.delete(p);
+		session.getTransaction().commit();
+		session.close();
+
+	}
 }
