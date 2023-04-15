@@ -1,0 +1,24 @@
+post /user/: {
+	"email":"user@user.com",
+	"name": "John Doe",
+	"password":"123456",
+}
+Post: /auth/: {
+	"email":"user@user.com",
+	"password": "123456",
+}
+#Anote o token retornado.
+#insira o token como Bearer Token dentro do seu request.
+Get: /auth/: {} 
+
+Post: /posts/: {
+	"title": "my first post",
+	"content": "i love posting"
+}
+Get: /posts/: {}
+Get: /posts/:id :{}
+Put: /posts/:id :{
+	"title": "my updated title",
+	"content": "that's different"
+}
+Delete: /posts/:id {}
