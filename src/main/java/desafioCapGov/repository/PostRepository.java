@@ -3,7 +3,6 @@ package desafioCapGov.repository;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import javax.persistence.Query;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -23,22 +22,18 @@ import desafioCapGov.annotations.Logged;
 import desafioCapGov.database.Database;
 import desafioCapGov.entities.Post;
 import desafioCapGov.entities.ResponseError;
+import desafioCapGov.resource.PostResource;
 
 @Path("/posts")
 @Logged
 public class PostRepository {
+	private PostResource postResource = new PostResource();
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getAllPosts(@Context HttpHeaders headers) {
 		String userID = headers.getHeaderString("userID");
-		Session session = Database.getSession();
-		session.beginTransaction();
-		Query query = session.createQuery("from Post p where p.userID = :userID");
-		query.setParameter("userID", userID);
-		List<Post> posts = query.getResultList();
-		session.getTransaction().commit();
-		session.close();
+		List<Post> posts = postResource.getPostsByUser(userID);
 		return Response.ok().entity(posts).build();
 	}
 
@@ -47,19 +42,11 @@ public class PostRepository {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getPostByID(@Context HttpHeaders headers, @PathParam("id") String postID) {
 		String userID = headers.getHeaderString("userID");
-		Session session = Database.getSession();
-		session.beginTransaction();
-		Query query = session.createQuery("from Post p where p.userID = :userID and p.postID = :postID");
-		query.setParameter("userID", userID);
-		query.setParameter("postID", postID);
-		query.setMaxResults(1);
-		List<Post> posts = query.getResultList();
-		session.getTransaction().commit();
-		session.close();
-		if (posts.size() < 1) {
-			return Response.status(404).build();
+		Post p = postResource.getPostByID(postID);
+		if (p == null || !(p.getUserId().equals(userID))) {
+			return Response.status(404).entity(new ResponseError("Post not found!", 404)).build();
 		}
-		return Response.ok().entity(posts).build();
+		return Response.ok().entity(p).build();
 	}
 
 	@POST
@@ -68,11 +55,7 @@ public class PostRepository {
 	public Response createPost(Post p, @Context HttpHeaders headers) {
 		String userID = headers.getHeaderString("userID");
 		Post post = new Post(p.getTitle(), p.getContent(), userID);
-		Session session = Database.getSession();
-		session.beginTransaction();
-		session.save(post);
-		session.getTransaction().commit();
-		session.close();
+		postResource.createPost(post);
 		return Response.status(201).entity(post).build();
 	}
 
@@ -80,24 +63,16 @@ public class PostRepository {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/{id}")
-	public Response updatePost(Post p, @Context HttpHeaders headers, @PathParam("id") String postID) {
+	public Response updatePost(Post updatedPost, @Context HttpHeaders headers, @PathParam("id") String postID) {
 		String userID = headers.getHeaderString("userID");
-		System.out.println(userID);
-		System.out.println(p);
-		System.out.println(postID);
-		Session session = Database.getSession();
-		session.beginTransaction();
-		Query query = session.createQuery("update Post set title = :title, " + "content = :content, "
-				+ "updatedAt = :updatedAt " + "where userID = :userID " + "AND postID = :postID");
-
-		query.setParameter("title", p.getTitle());
-		query.setParameter("content", p.getContent());
-		query.setParameter("updatedAt", LocalDateTime.now());
-		query.setParameter("userID", userID);
-		query.setParameter("postID", postID);
-		query.executeUpdate();
-		session.getTransaction().commit();
-		session.close();
+		Post p = postResource.getPostByID(postID);
+		if (p == null || !(p.getUserId().equals(userID))) {
+			return Response.status(404).entity(new ResponseError("Post not found", 404)).build();
+		}
+		p.setContent(updatedPost.getContent());
+		p.setTitle(updatedPost.getTitle());
+		p.setUpdatedAt(LocalDateTime.now());
+		postResource.updatePost(p);
 		return Response.ok().build();
 
 	}
