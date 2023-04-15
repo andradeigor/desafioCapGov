@@ -25,6 +25,8 @@ name VARCHAR(255) NOT NULL,
 createdAt TIMESTAMP,
 updatedAt TIMESTAMP);
 
+#Caso encontre um erro na geração dessa tabela, altere o tipo de updatedAt para DATETIME.
+
 
 CREATE TABLE Posts(
 postID VARCHAR(255) PRIMARY KEY,
@@ -33,6 +35,9 @@ content varchar(255) not null,
 createdAt timestamp,
 updatedAt timestamp,
 userID varchar(255), foreign key (userID) references Users(userID) );
+
+#Caso encontre um erro na geração dessa tabela, altere o tipo de updatedAt para DATETIME.
+
 ```
 
 Rodando o Servidor localmente:
