@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC
+		"-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+		"https://hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+	<session-factory>
+		<!-- Database connection properties - Driver, URL, user, password -->
+		<property name="hibernate.connection.driver_class">com.mysql.jdbc.Driver</property>
+		<property name="hibernate.connection.url">jdbc:mysql://localhost/CAPGOV?useSSL=false&amp;serverTimezone=UTC</property>
+		<property name="hibernate.connection.username">root</property>
+		<property name="hibernate.connection.password">password</property>
+		<!-- Connection Pool Size -->
+		<property name="hibernate.connection.pool_size">100</property>
+
+		<!-- org.hibernate.HibernateException: No CurrentSessionContext configured! -->
+		<property name="hibernate.current_session_context_class">thread</property>
+
+		<!-- Outputs the SQL queries, should be disabled in Production -->
+		<property name="hibernate.show_sql">true</property>
+
+		<!-- Dialect is required to let Hibernate know the Database Type, MySQL, 
+			Oracle etc Hibernate 4 automatically figure out Dialect from Database Connection 
+			Metadata -->
+		<property name="hibernate.dialect">org.hibernate.dialect.MySQLInnoDBDialect</property>
+		<mapping class="desafioCapGov.entities.User" />
+		<mapping class="desafioCapGov.entities.Post" />
+
+	</session-factory>
+</hibernate-configuration>
